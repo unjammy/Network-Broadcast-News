@@ -1,22 +1,31 @@
 const net = require('net');
-const fs = require('fs');
 
-const server = net.createServer( (c) => {
+process.stdin.setEncoding('utf8');
 
-  console.log('client connected');
-  c.on('end', () => {
+const server = net.createServer( (client) => {
+
+  client.write('client connected');
+
+  client.on("data", (message) => {
+    process.stdout.write( `${client.remotePort}: ${message}`);
+  });
+
+
+  client.on('end', () => {
     console.log('client disconnected');
   });
-  c.write('hello\r\n');
-  c.pipe(c);
+
 } );
 
 server.on('error', (err) => {
   throw err;
 });
 
-server.listen(6969, () => {
+server.listen({host: "localhost", port: 6969}, () => {
   console.log('server bound');
+  console.log(server.address());
 });
 
-console.log(server.address());
+
+
+module.exports = server;
